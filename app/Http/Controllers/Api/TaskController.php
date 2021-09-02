@@ -18,20 +18,9 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = User::get();
+        $tasks = Task::get();
         return response()->json($tasks);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return  response()->json('aaaaaaaaaaaa');
-    }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -44,6 +33,7 @@ class TaskController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'finished' => 'required',
+            'user_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -54,6 +44,7 @@ class TaskController extends Controller
         $task->title = $request->title;
         $task->description = $request->description;
         $task->finished = $request->finished;
+        $task->user_id = $request->user_id;;
         $task->save();
 
         return response()->json($task);
@@ -67,7 +58,7 @@ class TaskController extends Controller
      */
     public function show($id)
     {
-        $task = Task::where('user_id', Auth::user()->id)->where('id', $id)->first();
+        $task = Task::where('id', $id)->first();
         if (!$task) {
             return response(['error' => 'Task not found'], '400');
         }
@@ -80,9 +71,26 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($request, $id)
     {
-        // 
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'finished' => 'required',
+            'user_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator);
+        }
+
+        $task = Task::where('id', $id)->first();
+        $task->title = $request->title;
+        $task->description = $request->description;
+        $task->finished = $request->finished;
+        $task->user_id = $request->user_id;;
+        $task->save();
+
+        return response()->json($task);
     }
 
     /**
