@@ -5,4 +5,4 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-Route::apiResource('/tasks', TaskController::class)->middleware('auth');
+Route::apiResource('/tasks', TaskController::class);
