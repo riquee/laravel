@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class TaskController extends Controller
 {
@@ -38,7 +39,23 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        // return  response()->json('create');
+
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'finished' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator);
+        }
+
+        $task = new Task;
+        $task->title = $request->title;
+        $task->description = $request->description;
+        $task->finished = $request->finished;
+        $task->save();
+
+        return response()->json($task);
     }
 
     /**
@@ -49,7 +66,11 @@ class TaskController extends Controller
      */
     public function show($id)
     {
-        //
+        $task = Task::where('user_id', Auth::user()->id)->where('id', $id)->first();
+        if (!$task) {
+            return response(['error' => 'Task not found'], '400');
+        }
+        return response()->json($task);
     }
 
     /**
@@ -83,6 +104,11 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
-        // return  
+        $task = Task::where('user_id', Auth::user()->id)->where('id', $id)->first();
+        if (!$task) {
+            return response(['error' => 'Task not found'], '400');
+        }
+        $task->delete();
+        return response()->json(['success' => 'Task deleted sucesfull']);
     }
 }
